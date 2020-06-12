@@ -4,7 +4,7 @@
   "description": "The runtime library for hrpc",
   "main": "index.js",
   "dependencies": {
-    "arpeecee": "^1.0.5",
+    "arpeecee": "^2.0.0",
     "protocol-buffers-encodings": "^1.1.0"
   },
   "devDependencies": {},
