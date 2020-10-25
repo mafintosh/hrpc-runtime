@@ -3,11 +3,12 @@ const fs = require('fs')
 const net = require('net')
 
 class HRPCServer extends EventEmitter {
-  constructor (Session, onclient) {
+  constructor (Session, server, onclient) {
     super()
     if (onclient) this.on('client', onclient)
     this.clients = new Set()
-    this.server = net.createServer(rawSocket => {
+    this.server = server
+    this.server.on('connection', (rawSocket) => {
       const client = new Session(rawSocket)
       this.clients.add(client)
       client.on('close', () => this.clients.delete(client))
@@ -54,13 +55,19 @@ class HRPCServer extends EventEmitter {
 }
 
 module.exports = class HRPC extends EventEmitter {
-  static createServer (onclient) {
-    return new HRPCServer(this, onclient)
+  static createServer (src, onclient = src) {
+    const server = isEventEmitter(src) ? src : net.createServer()
+    return new HRPCServer(this, server, onclient)
   }
 
   static connect (dest) {
-    return new this(net.connect(dest))
+    const socket = isEventEmitter(dest) ? dest : net.connect(dest)
+    return new this(socket)
   }
+}
+
+function isEventEmitter (o) {
+  return typeof o === 'object' && o !== null && typeof o.on === 'function'
 }
 
 function listenSocket (server, name) {
