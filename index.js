@@ -55,7 +55,11 @@ class HRPCServer extends EventEmitter {
 }
 
 module.exports = class HRPC extends EventEmitter {
-  static createServer (src, onclient = src) {
+  static createServer (src, onclient) {
+    if (typeof src === 'function') {
+      onclient = src
+      src = null
+    }
     const server = isEventEmitter(src) ? src : net.createServer()
     return new HRPCServer(this, server, onclient)
   }
